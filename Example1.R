@@ -41,16 +41,25 @@ lambda = 0.0 # tuning parameter 1
 beta_start = rep(0, 2) # starting point 1
 
 # [ToDo] Create a vector to store objective function values, and calculate the value of f(beta) at the beginning
+fvec <- vector(length = niter + 1)
+fvec[1] <- lassoobj(X, Y, beta_start, lambda)
+
 
 
 for (i in 1:niter){
   # [ToDo] Update of beta1
+  beta1 <- softthresh((1/n) * crossprod(X1, (Y - X2 * beta[2])), lambda)
   
   # [ToDo] Update of beta2
+  beta2 <- softthresh((1/n) * crossprod(X2, (Y - X1 * beta[1])), lambda)
   
   # [ToDo] Calculate updated value of f(beta)
+  fvec[i+1] <- lassoobj(X, Y, beta, lambda)
   
 }
+
+# Sum of squares error for OLS
+fvec |> tail()
 
 
 

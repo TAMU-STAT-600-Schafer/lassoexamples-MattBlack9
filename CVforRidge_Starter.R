@@ -17,7 +17,10 @@ Y = beta0 + X %*% beta + rnorm(n, sd = sigma)
 
 # Split the data into K = 2 folds
 # [ToDo] Create idfold vector of length n indicating the fold id, should have 1 or 2 in each position
+K <- 2
 
+idfolds <- sample(K, size = n, replace = T)
+idfolds <- sample(rep(1:K, length.out = n), size = n)
 
 # For loop over folds and lambdas
 ##########################################
@@ -33,20 +36,31 @@ cv_folds = matrix(NA, K, nlambda) # fold-specific errors
 idfold= sample(rep(1:K, length.out = n), size = n)
 for (fold in 1:K){
   #[ToDo] Create training data xtrain and ytrain, everything except fold
-
+  xtrain <- X[idfolds != fold,]
+  ytrain <- Y[idfolds != fold]
   #[ToDo] Create testing data xtest and ytest, everything in fold
-
+  xtest <- X[idfolds == fold, ]
+  ytest <- Y[idfolds == fold]
   
   #[ToDo] Center training data 
-
+  meanY <- mean(ytrain)
+  Ytrain_centered <- ytrain - meanY
+  
+  xtrain_centered <- scale(xtrain, scale = F)
+  meanx <- colMeans(xtrain)
+  ntrain <- nrow(xtrain)
+  
 
   #[ToDo] For loop over lambdas
   for (i in 1:length(lambda_seq)){
     # [ToDo] Calculate ridge solution
+    beta <- solve(t(xtrain_centered)%*%xtrain_centered /ntrain+ lambda_seq[i]*diag(p), t(xtrain_centered)%*%Ytrain_centered/ntrain)
 
     # Get back the intercept: beta0 = barY - bar X^{top}beta
+    beta0 <- as.numeric(meanY - crossprod(meanX, beta))
     
     # [ToDo] Complete with anything else you need for cvm and cvse
+    cv_folds[fold, i] <- mean(ytest - beta0 -xtest%*%beta)
 
       }
 }
